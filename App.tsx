@@ -1,9 +1,11 @@
 import { Text, View, StyleSheet, Button } from "react-native";
+global.Buffer = require("buffer").Buffer;
 import { Audio } from "expo-av";
 import { useState } from "react";
 import React from "react";
 import { Sound } from "expo-av/build/Audio";
 import { storage } from "./firebaseConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   ref,
   getDownloadURL,
@@ -22,26 +24,43 @@ export default function App() {
   const audiosList: AudioList[] = [];
 
   const fetchAudio = async () => {
-    const audio = await axios({
-      url: "https://firebasestorage.googleapis.com/v0/b/laugh-hub-102b1.appspot.com/o/audios%2Ftest.mp3?alt=media&token=d930ff0a-38cd-47c9-82c7-e85198fa8985",
-      method: "GET",
-      responseType: "blob",
-    });
+    const response = await axios(
+      "https://firebasestorage.googleapis.com/v0/b/laugh-hub-102b1.appspot.com/o/audios%2Ftest.mp3?alt=media&token=d930ff0a-38cd-47c9-82c7-e85198fa8985",
+      {
+        responseType: "arraybuffer",
+      }
+    );
+    const buffer = Buffer.from(response.data, "binary");
+    console.log(buffer);
 
-    console.log(audio.data);
+    const audio = new Audio.Sound();
   };
 
-  async function playSound() {
+  async function storeAudio() {
     console.log("Loading Sound");
+
     const { sound } = await Audio.Sound.createAsync(
-      require("./assets/test.mp3")
+      {
+        uri: "https://firebasestorage.googleapis.com/v0/b/laugh-hub-102b1.appspot.com/o/audios%2Ftest.mp3?alt=media&token=d930ff0a-38cd-47c9-82c7-e85198fa8985",
+      },
+      { shouldPlay: false }
     );
-    const audio = require("./assets/test.mp3");
-    setSound(sound);
     console.log(sound);
-    console.log("Playing Sound");
-    await sound.playAsync();
-    await sound.stopAsync();
+    try {
+  
+      await AsyncStorage.setItem("nintendo", JSON.stringify(sound));
+    } catch (error) {
+      console.log(error);
+    }
+
+    try {
+      const song = await AsyncStorage.getItem("nintendo");
+      if (song) {
+        
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async function dowloadFile() {
@@ -71,7 +90,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Button title="Play Sound" onPress={fetchAudio} />
+      <Button title="Play Sound" onPress={storeAudio} />
     </View>
   );
 }
