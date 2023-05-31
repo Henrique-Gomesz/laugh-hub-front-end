@@ -14,6 +14,7 @@ import {
   list,
 } from "firebase/storage";
 import axios from "axios";
+import ScreenBase from "./src/screen-base/ScreenBase";
 interface AudioList {
   name: string;
   url: string;
@@ -47,7 +48,6 @@ export default function App() {
     );
     console.log(sound);
     try {
-  
       await AsyncStorage.setItem("nintendo", JSON.stringify(sound));
     } catch (error) {
       console.log(error);
@@ -56,7 +56,6 @@ export default function App() {
     try {
       const song = await AsyncStorage.getItem("nintendo");
       if (song) {
-        
       }
     } catch (error) {
       console.log(error);
@@ -89,9 +88,10 @@ export default function App() {
   // }, [sound]);
 
   return (
-    <View style={styles.container}>
+    /*     <View style={styles.container}>
       <Button title="Play Sound" onPress={storeAudio} />
-    </View>
+    </View> */
+    <ScreenBase hasBack={true} hasMenu={true}></ScreenBase>
   );
 }
 
